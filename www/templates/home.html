@@ -1,0 +1,21 @@
+	<!-- this title will appear at nav bar  -->
+
+
+	<ion-view view-title="Welcome" ng-controller="HomeCtrl">
+
+	<ion-nav-buttons side="right">
+	<button class="button button-calm" ng-click="addItem()">Add</button>
+	</ion-nav-buttons>
+
+	<ion-content>
+
+	<!-- list of meals -->
+	<ion-list>
+		<ion-item ng-repeat="meal in allMeals track by $index">
+			<p>{{meal.name}}</p>
+		</ion-item> 
+	</ion-list>
+
+	</ion-content>
+	</ion-view>
+
