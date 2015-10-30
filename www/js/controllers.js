@@ -207,7 +207,7 @@ cApp.controller('ModalCtrl', function($scope, $rootScope) {
       });
 
     	// console buggin 
-    	console.log("successfull added meal!");
+    	console.log("successfull added yaw!");
 
     	// closing modal 
     	$scope.closeModal();
