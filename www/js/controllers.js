@@ -1,10 +1,26 @@
 var cApp = angular.module('starter.controllers', ['ionic', 'firebase']);
 
-
-
-
 // irebase app ref 
 var myFirebaseRef = new Firebase("https://logintest103.firebaseio.com/");
+
+// setting uid to null initially 
+
+var checkAuth = function ($scope, $state) { 
+  var authData = myFirebaseRef.getAuth(); 
+
+  // checking if user is logged in 
+  if (authData) { 
+    console.log("user detected");
+    console.log("User: " + authData.uid + " is logged in with: " + authData.provider);
+    $scope.uid = authData.uid;
+  } else { 
+    console.log("NO User Detected!");
+
+    // redirecting user to login page 
+    $state.go('login');
+  }
+
+}
 
 
 // sign up controller 
@@ -223,6 +239,12 @@ cApp.controller('ModalCtrl', function($scope, $rootScope) {
 // home page controller 
 cApp.controller('HomeCtrl', function($scope, $ionicModal, $rootScope) { 
 
+
+  // function to logout user
+  $scope.logout = function () { 
+    myFirebaseRef.unauth();
+  };
+
   $scope.allMeals = [];
 
 
@@ -234,8 +256,8 @@ cApp.controller('HomeCtrl', function($scope, $ionicModal, $rootScope) {
 
       mealsRef.on("child_added", function(snapshot) {
         var newPost = snapshot.val();
-        console.log("Name: " + newPost.name);
-        console.log("Price: " + newPost.price);
+        // console.log("Name: " + newPost.name);
+        // console.log("Price: " + newPost.price);
 
           $scope.allMeals.push({
             name: newPost.name, 
@@ -244,7 +266,12 @@ cApp.controller('HomeCtrl', function($scope, $ionicModal, $rootScope) {
       });
 };
 
+    
+    // testing 
+    $scope.testfunc = function () { 
+      checkAuth();
 
+    };
    
 
 
