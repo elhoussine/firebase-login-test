@@ -2,7 +2,7 @@
 
 <ion-modal-view ng-controller="SelectedMealCtrl">
 <ion-header-bar class="bar-positive">
-<h1 class="title">{{ selectedMeal.name }}</h1>
+<h1 class="title">{{ fixedCurrentMeal }}</h1>
 </ion-header-bar>
 <ion-content class="padding">
 
@@ -18,6 +18,12 @@
 <!-- submit button -->
 <button class="button button-block button-calm" ng-click="updateMeal()">Save Changes</button>
 
+<!-- delete meal -->
+<button class="button button-block button-assertive" ng-click="deleteMeal()">Delete Meal</button>
+
+
+
+<!-- close modal -->
 <button class="button button-block" ng-click="closeMealModal()">Close</button>
 </ion-content>
 </ion-modal-view>
