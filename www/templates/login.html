@@ -5,9 +5,11 @@
 <ion-content class="padding" ng-controller="LoginCtrl">
 
 <!-- login fields -->
+<form ng-submit="login()">
+
 <div class="list list-inset">
 	<label class="item item-input">
-		<input type="text" placeholder="Email" ng-model="loginData.email">
+		<input type="email" placeholder="Email" ng-model="loginData.email">
 	</label>
 
 	<label class="item item-input">   
@@ -15,7 +17,8 @@
 	</label>
 </div>
 <!-- login submit button -->
-<button class="button button-block button-positive" ng-click="login()">Login</button>
+<button type="submit" class="button button-block button-positive">Login</button>
+</form>
 
 </ion-content>
 </ion-view>

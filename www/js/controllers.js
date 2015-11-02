@@ -2,25 +2,30 @@ var cApp = angular.module('starter.controllers', ['ionic', 'firebase']);
 
 // irebase app ref 
 var myFirebaseRef = new Firebase("https://logintest103.firebaseio.com/");
+var uid = null;
+// // declaring global uid variable 
+// var uid = null;
 
-// setting uid to null initially 
 
-var checkAuth = function ($scope, $state) { 
-  var authData = myFirebaseRef.getAuth(); 
+// // setting uid to null initially 
 
-  // checking if user is logged in 
-  if (authData) { 
-    console.log("user detected");
-    console.log("User: " + authData.uid + " is logged in with: " + authData.provider);
-    $scope.uid = authData.uid;
-  } else { 
-    console.log("NO User Detected!");
+// var checkAuth = function ($scope, $state) { 
+//   var authData = myFirebaseRef.getAuth(); 
 
-    // redirecting user to login page 
-    $state.go('login');
-  }
+//   // checking if user is logged in 
+//   if (authData) { 
+//     console.log("user detected");
+//     console.log("User: " + authData.uid + " is logged in with: " + authData.provider);
+//     uid = authData.uid;
+//     console.log("global uid contains: ", uid);
+//   } else { 
+//     console.log("NO User Detected!");
 
-}
+//     // redirecting user to login page 
+//     $state.go('login');
+//   }
+
+// }
 
 
 // sign up controller 
@@ -58,10 +63,21 @@ cApp.controller('SignupCtrl', function($scope) {
 
 
 // login controller 
-cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, Items) { 
+cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, Items, $ionicHistory, $ionicLoading) { 
+
+  // clears nav history so we dont have 'back' button when we logout
+  $ionicHistory.clearHistory();
 
   // storing login data 
   $scope.loginData = {}; 
+
+  // function that clears input data 
+  $scope.clearFields = function () { 
+    $scope.loginData.email = "";
+    $scope.loginData.password = "";
+  };
+
+
 
   // creatng a callback to handle the result of Authertication process
   function authHandler(error, authData) { 
@@ -76,13 +92,18 @@ cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, I
       // saving user id so we save items to his id later
       $rootScope.uid = authData.uid;
 
+      // for debuggin 
       console.log("User Id Stored is: ", $rootScope.uid)
+
+      // cleating input data
+      $scope.clearFields();
 
       // reditredt user to home page
       $state.go('home');
 
     }
-  }
+  };
+
 
 
   // login function 
@@ -97,6 +118,7 @@ cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, I
 
       // the auth handler gets executed
     }, authHandler);
+
 
   };
 
@@ -204,6 +226,12 @@ $scope.getPhone = function () {
 
 
 
+
+
+
+
+
+
 // add item modal controller
 cApp.controller('ModalCtrl', function($scope, $rootScope) { 
 	// here we will be creating meals and saving them 
@@ -219,17 +247,27 @@ cApp.controller('ModalCtrl', function($scope, $rootScope) {
     	mealsRef.child($scope.newMeal.name).set({
         name: $scope.newMeal.name,
         price: $scope.newMeal.price, 
-        uid: $rootScope.uid
+        uid: uid
       });
 
     	// console buggin 
     	console.log("successfull added yaw!");
 
+      // clearing the fucking fields
+      $scope.clearFields();
+
     	// closing modal 
-    	$scope.closeModal();
+    	$scope.closeAddModal();
     };
 
+    // function to clear the fuck out of fields 
+    $scope.clearFields = function () { 
+      $scope.newMeal.name = "";
+      $scope.newMeal.price = "";
+    }
+
   });
+
 
 
 
@@ -237,82 +275,152 @@ cApp.controller('ModalCtrl', function($scope, $rootScope) {
 
 
 // home page controller 
-cApp.controller('HomeCtrl', function($scope, $ionicModal, $rootScope) { 
+cApp.controller('HomeCtrl', function($scope, $rootScope, $state, $ionicModal, Auth) { 
+
+  // checking auth and setting aith data
+  $scope.auth = Auth; 
+
+  $scope.auth.$onAuth(function(authData) { 
+    $scope.authData = authData;
+    if ($scope.authData == null) { 
+      // debuggin 
+      console.log("user is not logged in "); 
+
+      // no login -> redirect to login page 
+      $state.go('login');
+    } else { 
+      // debuggin 
+      console.log("user is logged in! uid: ", $scope.authData.uid);
+
+      // setting global uid to uid from auth data
+      uid = $scope.authData.uid;
+    }
+  });
 
 
   // function to logout user
   $scope.logout = function () { 
     myFirebaseRef.unauth();
+
+    $state.go('login');
+
+    // debugging purpose 
+    console.log("user logged out successfully");
   };
 
+  // array hold fetched meals
   $scope.allMeals = [];
-
 
 		// getting meals from database
 		$scope.getMeals = function () { 
-        $scope.allMeals = [];
+      $scope.allMeals = [];
 
-			var mealsRef = new Firebase("https://logintest103.firebaseio.com/Meals"); 
+      var mealsRef = new Firebase("https://logintest103.firebaseio.com/Meals"); 
 
       mealsRef.on("child_added", function(snapshot) {
         var newPost = snapshot.val();
         // console.log("Name: " + newPost.name);
         // console.log("Price: " + newPost.price);
 
-          $scope.allMeals.push({
-            name: newPost.name, 
-            price: newPost.price
-          })
+        $scope.allMeals.push({
+          name: newPost.name, 
+          price: newPost.price
+        })
       });
-};
-
-    
-    // testing 
-    $scope.testfunc = function () { 
-      checkAuth();
-
     };
-   
+
+    // modal for selected meal 
+    $ionicModal.fromTemplateUrl('templates/selectedMeal.html', {
+      scope: $scope, 
+      animation: 'slide-in-up'
+    }).then(function(modal) { 
+     $scope.mealModal = modal;
+   });
 
 
+    $scope.selectedMealShow = function () { 
+     $scope.mealModal.show();
+   };
 
-		// showing the modal to add item 
+   $scope.closeMealModal = function() { 
+     $scope.mealModal.hide();
+   };
+
+    // clean up modal when done with it 
+    $scope.$on('$destroy', function() { 
+      $scope.mealModal.remove();
+    });
+
+    // execute action on hide modal 
+    $scope.$on('mealModal.hidden', function() { 
+      // execute action
+      // console.log("modal hidden!");
+    });
+
+    // execute action on removal of modal 
+    $scope.$on('mealModal.remove', function () { 
+      // execute action
+      console.log("modal destroyed!");
+    });
+
+
+		// modal for add item 
 		$ionicModal.fromTemplateUrl('templates/addItem.html', {
       scope: $scope, 
       animation: 'slide-in-up'
     }).then(function(modal) { 
-     $scope.modal = modal;
+     $scope.addModal = modal;
    });
 
 
     $scope.addItem = function () { 
-     $scope.modal.show();
-     $scope
+     $scope.addModal.show();
    };
 
-   $scope.closeModal = function() { 
-     $scope.modal.hide();
+   $scope.closeAddModal = function() { 
+     $scope.addModal.hide();
    };
 
 		// clean up modal when done with it 
 		$scope.$on('$destroy', function() { 
-			$scope.modal.remove();
+			$scope.addModal.remove();
 		});
 
 		// execute action on hide modal 
-		$scope.$on('modal.hidden', function() { 
+		$scope.$on('addModal.hidden', function() { 
 			// execute action
 			// console.log("modal hidden!");
 		});
 
 		// execute action on removal of modal 
-		$scope.$on('modal.remove', function () { 
+		$scope.$on('addModal.remove', function () { 
 			// execute action
 			console.log("modal destroyed!");
 		});
 
+    // getting meals from this lovely function 
+    $scope.getMeals(); 
 
-		// calling getmeals function
-		$scope.getMeals(); 
+    // on meal click 
+    $scope.mealClicked = function ($index) { 
+      console.log("index: ", $index, "meal name: ", $scope.allMeals[$index].name, " Price: ", $scope.allMeals[$index].price);
+
+      // setting selected meal depending on index
+      $scope.selectedMeal = $scope.allMeals[$index];
+
+      // showing modal for selected meal 
+      $scope.selectedMealShow();
+    };
 
   });
+
+
+cApp.controller('SelectedMealCtrl', function($scope) { 
+
+  // funcion for 'save changes' button 
+  $scope.updateMeal = function () { 
+    console.log("save changes have been clicked");
+
+    // dismissing modal
+  };
+});

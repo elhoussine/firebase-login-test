@@ -32,7 +32,7 @@ myApp.config(function($stateProvider, $urlRouterProvider) {
 
 
 
-myApp.run(function($ionicPlatform) {
+myApp.run(function($ionicPlatform, $state, $rootScope) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -42,6 +42,7 @@ myApp.run(function($ionicPlatform) {
   if(window.StatusBar) {
     StatusBar.styleDefault();
   }
+
 });
 });
 
