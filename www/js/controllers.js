@@ -3,38 +3,12 @@ var cApp = angular.module('starter.controllers', ['ionic', 'firebase', 'ngCordov
 // irebase app ref 
 var myFirebaseRef = new Firebase("https://logintest103.firebaseio.com/");
 var uid = null;
-// // declaring global uid variable 
-// var uid = null;
-
-
-// // setting uid to null initially 
-
-// var checkAuth = function ($scope, $state) { 
-//   var authData = myFirebaseRef.getAuth(); 
-
-//   // checking if user is logged in 
-//   if (authData) { 
-//     console.log("user detected");
-//     console.log("User: " + authData.uid + " is logged in with: " + authData.provider);
-//     uid = authData.uid;
-//     console.log("global uid contains: ", uid);
-//   } else { 
-//     console.log("NO User Detected!");
-
-//     // redirecting user to login page 
-//     $state.go('login');
-//   }
-
-// }
-
 
 // sign up controller 
 cApp.controller('SignupCtrl', function($scope) { 
 
-
   // storing signup credenttials in object 
   $scope.signupData = {};
-
 
   // sign up function 
   $scope.signup = function () { 
@@ -64,6 +38,10 @@ cApp.controller('SignupCtrl', function($scope) {
 
 
 
+
+
+
+
 // login controller 
 cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, $ionicHistory, $ionicLoading) { 
 
@@ -78,8 +56,6 @@ cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, $
     $scope.loginData.email = "";
     $scope.loginData.password = "";
   };
-
-
 
   // creatng a callback to handle the result of Authertication process
   function authHandler(error, authData) { 
@@ -100,21 +76,31 @@ cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, $
     }
   };
 
+  // // login function 
+  // $scope.login = function () { 
 
+  //   // authing the user with username and password
+  //   myFirebaseRef.authWithPassword({
 
-  // login function 
-  $scope.login = function () { 
+  //     // passing in login data 
+  //     email: $scope.loginData.email, 
+  //     password: $scope.loginData.password
 
+  //     // the auth handler gets executed
+  //   }, authHandler);
+  // };
+
+  // quick login: 
     // authing the user with username and password
     myFirebaseRef.authWithPassword({
 
       // passing in login data 
-      email: $scope.loginData.email, 
-      password: $scope.loginData.password
+      email: "q@q.com", 
+      password: "q"
 
       // the auth handler gets executed
     }, authHandler);
-  };
+
 });
 
 
@@ -127,7 +113,59 @@ cApp.controller('LoginCtrl', function($scope, $rootScope, $ionicPopup, $state, $
 
 // add item modal controller
 cApp.controller('ModalCtrl', function($scope, $rootScope) { 
-	// here we will be creating meals and saving them 
+
+  // array that will hold Items 
+  $scope.Items = [{}];
+  // getting fields inputs 
+  $scope.Bill = []; 
+  // testing
+  $scope.numberOfItems = 1; 
+
+  $scope.test = function (num) { 
+    return new Array(num);
+
+  };
+
+  // add item field
+  $scope.addItem = function() { 
+    // adding one to items array
+    // $scope.numberOfItems += 1;
+    $scope.Items.push({});
+  };
+
+
+
+  // saviing adding bill 
+  // creating referance 
+  var billsRef = myFirebaseRef.child("Bills"); 
+  var itemsRef = billsRef.child("Items");
+
+  // adding bill 
+  $scope.addBill = function () { 
+    
+
+    // pushing my dick in it 
+    // billsRef.push().set({ 
+    //   billID: $scope.Bill.id, 
+    //   billAuth: $scope.Bill.authority,
+    //   billCustomerName: $scope.Bill.customerName, 
+    //   billCustomerID: $scope.Bill.customerId, 
+    //   billPaymentMethod: $scope.Bill.paymentMethod, 
+    //   billPayment: $scope.Bill.payment, 
+    //   billChange: $scope.Bill.change, 
+    //   billReturnPolicy: $scope.Bill.returnPolicy,
+    // });
+
+    for (item in $scope.Items) { 
+      // itemsRef.push().set({
+      //   name: item.name, 
+      //   price: item.price, 
+      //   quantity: item.quantity
+      // });
+console.log("name: " + item.name + " price: " + item.price + " Quantity: " + item.quantity);
+    }
+  };
+
 
 	// I will create databes called meals if not already created. 
   var mealsRef = myFirebaseRef.child("Meals"); 
@@ -157,10 +195,9 @@ cApp.controller('ModalCtrl', function($scope, $rootScope) {
     $scope.clearFields = function () { 
       $scope.newMeal.name = "";
       $scope.newMeal.price = "";
-    }
+    };
 
   });
-
 
 
 
@@ -170,10 +207,8 @@ cApp.controller('ModalCtrl', function($scope, $rootScope) {
 // home page controller 
 cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope, $state, $ionicModal, Auth, $firebaseArray) { 
 
-
   // debugging
   console.log("inside HomeCtrl"); 
-
 
   // checking auth and setting aith data
   $scope.auth = Auth; 
@@ -194,7 +229,6 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
     }
   });
 
-
   // function to logout user
   $scope.logout = function () { 
     myFirebaseRef.unauth();
@@ -204,10 +238,8 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
     console.log("user logged out successfully");
   };
 
-
   // array hold fetched meals
   // $scope.allMeals = null;
-
 
 		// getting meals from database
 		$scope.getMeals = function () { 
@@ -225,7 +257,6 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
     }).then(function(modal) { 
      $scope.mealModal = modal;
    });
-
 
     $scope.selectedMealShow = function () { 
      $scope.mealModal.show();
@@ -252,7 +283,6 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
       console.log("modal destroyed!");
     });
 
-
 		// modal for add item 
 		$ionicModal.fromTemplateUrl('templates/addItem.html', {
       scope: $scope, 
@@ -260,7 +290,6 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
     }).then(function(modal) { 
      $scope.addModal = modal;
    });
-
 
     $scope.addItem = function () { 
      $scope.addModal.show();
@@ -305,7 +334,6 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
       $scope.selectedMealShow();
     };
 
-
     // testing barcode scanner 
     $scope.scanBarcode = function () { 
       // calling cordova plugin 
@@ -320,7 +348,6 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
         alert("error scanning");
       });
     };
-    
 
     // testing encoding barcode
     $scope.encodeBarcode = function () { 
@@ -336,6 +363,14 @@ cApp.controller('HomeCtrl', function($cordovaBarcodeScanner, $scope, $rootScope,
       });
     };
   });
+
+
+
+
+
+
+
+
 
 
 cApp.controller('SelectedMealCtrl', function($scope) { 
@@ -386,7 +421,6 @@ cApp.controller('SelectedMealCtrl', function($scope) {
     }
   };
 
-
   // function to delete meal 
   $scope.deleteMeal = function () { 
     // deleting current piece of yack 
@@ -403,3 +437,7 @@ cApp.controller('SelectedMealCtrl', function($scope) {
   });
   };
 });
+
+
+
+// how the fuck I add multple items 
